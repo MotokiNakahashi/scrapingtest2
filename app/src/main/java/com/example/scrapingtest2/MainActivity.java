@@ -9,7 +9,7 @@ import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
-    String url1 = "https://news.yahoo.co.jp/categories/domestic";
+    String url1 = "https://manaba.lms.tokushima-u.ac.jp/ct/home";
     @SuppressLint("WrongThread")
 
 

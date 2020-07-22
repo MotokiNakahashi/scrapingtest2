@@ -2,7 +2,10 @@ package com.example.scrapingtest2;
 
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.webkit.WebView;
 import android.widget.TextView;
+
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,11 +13,23 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
 
 public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
     //フィールドと変数の設定
     private Activity mainActivity;
-    String url1 = "https://news.yahoo.co.jp/categories/domestic";
+
+    // ユーザ名・パスワード
+    final String USERNAME ="c611701410";
+    final String PASS ="moto125487tok";
+
+    // ログインページのURL
+    final String LOGIN_URL = "https://localidp.ait230.tokushima-u.ac.jp/idp/profile/SAML2/Redirect/SSO?execution=e1s1";
+    String mainUrl = "https://manaba.lms.tokushima-u.ac.jp/ct/home";
+
+    final String UA ="Mozilla/5.0 (Linux; Android 10; Android SDK built for x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.185 Mobile Safari/537.36 ";
+
+    // ユーザーエージェント
 
 
     //コンストラクタの設定
@@ -29,22 +44,24 @@ public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
         HttpURLConnection con = null;
 
         try {
-            //httpコネクトの設定
-            con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
-            con.setInstanceFollowRedirects(false);
-            con.connect();
-            final int statusCode = con.getResponseCode();
-            if (statusCode != HttpURLConnection.HTTP_OK) {
-                System.err.println("正常に接続できていません。statusCode:" + statusCode);
-                return null;
-            }
+            Connection.Response response = Jsoup.connect(LOGIN_URL)
+                    .method(Connection.Method.GET)
+                    .execute();
+            response = Jsoup.connect(LOGIN_URL)
+                    .data("j_username", USERNAME, "j_password", PASS)
+                    .userAgent(UA)
+                    .cookies(response.cookies())
+                    .method(Connection.Method.POST)
+                    .execute();
 
-            // Jsoupで対象URLの情報を取得する。
-            Document doc = Jsoup.connect(url1).get();
-            Elements elm = doc.select("li.topicsListItem");
-            Element elm2 = elm.get(6);
-            String title = elm2.text();
+            // ログインページから取得したクッキーを使ってアクセス
+            Document doc = Jsoup.connect(mainUrl)
+                    .userAgent(UA)
+                    .cookies(response.cookies())
+                    .get();
+
+
+            String title = doc.text();
             return  title;
 
         } catch (IOException e) {
@@ -57,7 +74,6 @@ public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
             }
         }
     }
-
 
     //ボタンを押した時の動作
     @Override
