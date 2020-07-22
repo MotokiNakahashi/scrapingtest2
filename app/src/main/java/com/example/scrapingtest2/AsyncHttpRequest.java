@@ -25,7 +25,8 @@ public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
 
     // ログインページのURL
     final String LOGIN_URL = "https://localidp.ait230.tokushima-u.ac.jp/idp/profile/SAML2/Redirect/SSO?execution=e1s1";
-    String mainUrl = "https://manaba.lms.tokushima-u.ac.jp/ct/home";
+    String mainUrl = "https://manaba.lms.tokushima-u.ac.jp/Shibboleth.sso/SAML2/POST";
+    String manabaUrl = "https://manaba.lms.tokushima-u.ac.jp/ct/home";
 
     final String UA ="Mozilla/5.0 (Linux; Android 10; Android SDK built for x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.185 Mobile Safari/537.36 ";
 
@@ -44,24 +45,29 @@ public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
         HttpURLConnection con = null;
 
         try {
-            Connection.Response response = Jsoup.connect(LOGIN_URL)
+            Connection.Response res1 = Jsoup.connect(LOGIN_URL)
                     .method(Connection.Method.GET)
                     .execute();
-            response = Jsoup.connect(LOGIN_URL)
-                    .data("j_username", USERNAME, "j_password", PASS)
+            Connection.Response res2 = Jsoup.connect(LOGIN_URL)
+                    .data("j_username", USERNAME, "j_password", PASS,"_eventId_proceed","右記に同意して利用する")
                     .userAgent(UA)
-                    .cookies(response.cookies())
+                    .cookies(res1.cookies())
                     .method(Connection.Method.POST)
                     .execute();
 
             // ログインページから取得したクッキーを使ってアクセス
-            Document doc = Jsoup.connect(mainUrl)
+//            Connection.Response res3 = Jsoup.connect(mainUrl)
+//                    .userAgent(UA)
+//                    .cookies(res2.cookies())
+//                    .execute();
+
+            Document doc2 = Jsoup.connect(manabaUrl)
                     .userAgent(UA)
-                    .cookies(response.cookies())
+                    .cookies(res2.cookies())
                     .get();
 
 
-            String title = doc.text();
+            String title = doc2.text();
             return  title;
 
         } catch (IOException e) {
