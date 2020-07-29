@@ -14,7 +14,7 @@ import java.net.URL;
 public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
     //フィールドと変数の設定
     private Activity mainActivity;
-    String url1 = "https://news.yahoo.co.jp/categories/domestic";
+    String url1 = "https://www.cloudgate.jp/ua.php";
 
 
     //コンストラクタの設定
@@ -42,9 +42,7 @@ public final class AsyncHttpRequest extends AsyncTask<URL, Void, String> {
 
             // Jsoupで対象URLの情報を取得する。
             Document doc = Jsoup.connect(url1).get();
-            Elements elm = doc.select("li.topicsListItem");
-            Element elm2 = elm.get(6);
-            String title = elm2.text();
+            String title = doc.text();
             return  title;
 
         } catch (IOException e) {
